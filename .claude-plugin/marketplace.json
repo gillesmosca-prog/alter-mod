@@ -1,0 +1,5 @@
+{
+  "name": "alter-mod",
+  "owner": { "name": "Gilles Mosca" },
+  "plugins": [{ "name": "alter", "source": "./" }]
+}

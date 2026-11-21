@@ -1,0 +1,16 @@
+{
+  "name": "alter",
+  "version": "0.2.0",
+  "description": "Widget Alter : l'avatar vivant d'Alter, son état et ses raccourcis à côté du chat",
+  "author": { "name": "Gilles Mosca" },
+  "license": "Apache-2.0",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "qg_url": {
+      "type": "string",
+      "title": "Lien du QG",
+      "description": "Adresse https de ta page QG d'Alter (facultatif). Vide : le lien n'est pas affiché.",
+      "default": ""
+    }
+  }
+}
