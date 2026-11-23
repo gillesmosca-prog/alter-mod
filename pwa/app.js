@@ -931,6 +931,50 @@ CADRE : ceci est la version d'essai dans claude.ai. Le portefeuille ci-dessous e
     if (r) $("#revue-date").textContent = `Préparée le ${dateCourte(r.cree_le)}.`;
   }
 
+  // ------------------------------------------------------------------ import du QG (mode serveur)
+  async function preparerImport(fichier) {
+    const zone = $("#apercu-import");
+    zone.replaceChildren(el("p", { class: "aide-import" }, "Lecture du fichier…"));
+    let contenu = await fichier.text();
+    let a;
+    try {
+      a = await MoteurServeur.json("import", { method: "POST", body: JSON.stringify({ contenu, mode: "apercu" }) });
+    } catch (err) {
+      contenu = null;
+      zone.replaceChildren(el("p", { class: "alerte" }, err.message || "Aperçu impossible."));
+      return;
+    }
+    const liste = (titre, items, ouvert) => items.length
+      ? el("details", { open: ouvert || null }, el("summary", {}, `${titre} (${items.length})`), el("ul", {}, items.map((t) => el("li", {}, t))))
+      : null;
+    const annuler = el("button", { type: "button", class: "btn" }, "Annuler");
+    const importer = el("button", { type: "button", class: "btn btn-valider" },
+      `Importer ${a.projets_nouveaux.length} projet${a.projets_nouveaux.length > 1 ? "s" : ""} et ${a.journal} entrée${a.journal > 1 ? "s" : ""}`);
+    const fermer = () => { contenu = null; zone.replaceChildren(); $("#fichier-import").value = ""; };
+    annuler.onclick = fermer;
+    importer.onclick = async () => {
+      importer.disabled = true; annuler.disabled = true;
+      try {
+        const r = await MoteurServeur.json("import", { method: "POST", body: JSON.stringify({ contenu, mode: "importer" }) });
+        fermer();
+        toast(`Import fait : ${r.importe.projets} projets, ${r.importe.journal} entrées de journal.`);
+        await rafraichir();
+      } catch (err) {
+        importer.disabled = false; annuler.disabled = false;
+        toast(err.message || "Import impossible.");
+      }
+    };
+    zone.replaceChildren(el("div", { class: "apercu" },
+      el("h4", {}, "Aperçu de l'import"),
+      a.deja_importe ? el("p", { class: "alerte" }, "Ce fichier a déjà été importé. Rien ne sera fait.") : null,
+      liste("Projets à créer", a.projets_nouveaux.map((p) => `${p.code} · ${p.nom} · ${p.domaine} · ${p.statut || "à confirmer"}${p.confidentiel ? " · confidentiel" : ""}`), true),
+      liste("Codes déjà présents, laissés tels quels", a.projets_existants),
+      el("p", { class: "aide-import" }, `${a.journal} entrée${a.journal > 1 ? "s" : ""} de journal, dates d'origine conservées.`),
+      liste("Corrections automatiques", a.avertissements),
+      liste("Éléments écartés", a.rejets, true),
+      el("div", { class: "bloc-actions" }, a.deja_importe ? null : importer, annuler)));
+  }
+
   // ------------------------------------------------------------------ notifications
   function octetsDeB64url(s) {
     const b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4));
@@ -1006,6 +1050,10 @@ CADRE : ceci est la version d'essai dans claude.ai. Le portefeuille ci-dessous e
       if (etat.lectureAuto) Voix.lire(b._md, b.ecouter);
       try { await moteur.revueLue(r.id); r.lue = true; rendreRevue(); } catch { /* sans gravité */ }
     });
+    $("#fichier-import").addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) preparerImport(f).catch(() => toast("Lecture du fichier impossible."));
+    });
     $("#btn-notif").addEventListener("click", () => activerNotifications().catch(() => toast("Activation impossible.")));
     $("#btn-sortir").addEventListener("click", async () => {
       await MoteurServeur.sb.auth.signOut();
@@ -1023,6 +1071,7 @@ CADRE : ceci est la version d'essai dans claude.ai. Le portefeuille ci-dessous e
       moteur = MoteurServeur;
       $("#mode").textContent = "Connecté"; $("#mode").dataset.mode = "serveur";
       $("#btn-notif").hidden = false;
+      $("#zone-import").hidden = false;
       try { await MoteurServeur.init(); } catch { toast("Chargement du module de connexion impossible."); return; }
       Voix.init();
       const { data } = await MoteurServeur.sb.auth.mfa.getAuthenticatorAssuranceLevel();

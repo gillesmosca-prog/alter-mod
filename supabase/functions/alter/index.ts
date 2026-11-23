@@ -6,11 +6,13 @@
 //   POST /alter/revues/:id/lue
 //   POST /alter/push/abonner         { endpoint }
 //   POST /alter/push/desabonner      { endpoint }
+//   POST /alter/import               { contenu: texte du fichier d'export, mode: "apercu" | "importer" }
 //
 // Déployer avec la vérification JWT de Supabase active (comportement par défaut).
 
 import { clientService, entetesCors, ErreurHttp, proprietaire } from "../_shared/auth.ts";
 import { converser, systeme } from "../_shared/claude.ts";
+import { importerQG } from "../_shared/import.ts";
 import {
   ajouterMessage, deciderProposition, enregistrerProposition, instantanePortefeuille,
   lireDerniereRevue, lireJournal, lireMessages, lireProjets, lirePropositions,
@@ -114,6 +116,15 @@ Deno.serve(async (req) => {
       const { decision, modifications } = await corpsJson(req);
       if (decision !== "valider" && decision !== "rejeter") throw new ErreurHttp(400, "Décision inconnue.");
       return json(req, await deciderProposition(db, owner, morceaux[1], decision, modifications));
+    }
+
+    // ---- Import unique du QG claude.ai (aperçu, puis import)
+    if (req.method === "POST" && chemin === "import") {
+      const { contenu, mode } = await corpsJson(req);
+      if (typeof contenu !== "string" || !contenu) throw new ErreurHttp(400, "Fichier d'export manquant.");
+      if (contenu.length > 5_000_000) throw new ErreurHttp(413, "Fichier d'export trop volumineux.");
+      if (mode !== "apercu" && mode !== "importer") throw new ErreurHttp(400, "Mode inconnu.");
+      return json(req, await importerQG(db, owner, contenu, mode));
     }
 
     // ---- Revue marquée comme lue

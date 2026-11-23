@@ -90,6 +90,12 @@
           <button type="button" data-filtre="surveiller" aria-pressed="false">À surveiller</button>
         </div>
         <div id="domaines"></div>
+        <div class="zone-import" id="zone-import" hidden>
+          <label class="btn" for="fichier-import">Importer un export du QG</label>
+          <input class="sr" type="file" id="fichier-import" accept="application/json,.json">
+          <p class="aide-import">Reprise unique du portefeuille claude.ai. Un aperçu s'affiche avant tout enregistrement.</p>
+          <div id="apercu-import"></div>
+        </div>
       </section>
       <section class="panneau defile" id="vue-journal" aria-label="Journal" hidden>
         <ol class="journal" id="journal"></ol>

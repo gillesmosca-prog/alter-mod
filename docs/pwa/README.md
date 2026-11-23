@@ -8,6 +8,7 @@ Alter est installable sur iPhone, Android, Mac et Windows depuis le navigateur. 
 | [PLATEFORMES.md](./PLATEFORMES.md) | Limites par plateforme, dont les notifications sur iOS |
 | [COUTS.md](./COUTS.md) | Estimation des coûts mensuels selon trois niveaux d'usage |
 | [NLPD.md](./NLPD.md) | Points à valider avec l'avocat et l'hébergeur |
+| [IMPORT.md](./IMPORT.md) | Reprise unique du portefeuille du QG claude.ai |
 
 ## 1. Vue d'ensemble
 
@@ -65,9 +66,10 @@ pwa/
 supabase/
   migrations/…_alter_init.sql         tables chiffrées, RLS fermé, mise à jour avec version
   migrations/…_alter_cron_revue.sql   déclencheur du lundi
+  migrations/…_alter_imports.sql      trace des imports (empreinte seulement)
   functions/alter/index.ts            API de la PWA (état, chat en flux, validation, notifications)
   functions/alter-revue/index.ts      revue hebdomadaire + notification
-  functions/_shared/                  auth, chiffrement, QG, appel à Claude, Web Push
+  functions/_shared/                  auth, chiffrement, QG, import, appel à Claude, Web Push
     prompt.exemple.ts                 modèle ; le vrai prompt va dans prompt.ts (ignoré par git)
 scripts/
   generer-secrets.mjs    génère la clé de chiffrement, le secret du déclencheur et les clés VAPID
@@ -159,7 +161,7 @@ Prérequis : un compte Supabase, un compte API Anthropic, la CLI Supabase, Node 
 8. **Configurer et publier la PWA.**
    - Copie `pwa/config.exemple.js` en `pwa/config.js` et renseigne l'URL du projet, la clé « anon » et la clé publique VAPID.
    - Publie le dossier `pwa/` sur un hébergement statique en HTTPS, sur le domaine déclaré dans `ALTER_ORIGINES`.
-9. **Importer le portefeuille.** C'est une étape à part, à faire après l'avis de ton avocat sur l'hébergement : une reprise unique du QG claude.ai vers Supabase, à préparer ensemble. D'ici là, l'application démarre avec un portefeuille vide.
+9. **Importer le portefeuille.** Seulement après le feu vert de ton avocat : suis [IMPORT.md](./IMPORT.md). D'ici là, l'application démarre avec un portefeuille vide.
 10. **Tester.**
     - Ouvre l'application, connecte-toi, active le second facteur et envoie un message.
     - Valide un bloc QG.
