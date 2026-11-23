@@ -42,6 +42,10 @@ Si le dépôt est privé, il faut y avoir été invité sur GitHub et que l'ordi
 
 Le mod se marie avec la skill « Alter et le Cabinet » ; sans elle, Claude répond normalement aux messages préparés par les boutons.
 
+## Alter en application (PWA)
+
+Le dossier `pwa/` contient Alter sous forme d'application web installable sur iPhone, Android, Mac et Windows : conversation en français, dictée et lecture à voix haute, portefeuille par domaine, blocs QG à valider, revue du lundi à 7 h 40. Le serveur (`supabase/`) garde la clé d'API et chiffre les données. Architecture, déploiement, limites par plateforme, coûts et points nLPD : [docs/pwa](./docs/pwa/README.md).
+
 ## Licence
 
 Apache 2.0, voir [LICENSE](./LICENSE).

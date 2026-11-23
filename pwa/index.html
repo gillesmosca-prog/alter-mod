@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr" class="pwa">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alter</title>
+<meta name="description" content="Alter, directeur de cabinet : conversation, portefeuille et revue du lundi.">
+<meta name="theme-color" content="#00297f">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; img-src 'self' data: blob:; style-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Alter">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="barre">
+    <div class="monogramme" aria-hidden="true">A</div>
+    <div class="identite"><strong>Alter</strong><span>Directeur de cabinet</span></div>
+    <span class="mode" id="mode" data-mode="demo">Exemple</span>
+    <div class="actions-barre">
+      <button class="bouton-discret" id="btn-lecture" type="button" aria-pressed="false" title="Lire chaque réponse à voix haute" aria-label="Lecture automatique des réponses">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        <span>Lecture auto</span>
+      </button>
+      <button class="bouton-discret" id="btn-notif" type="button" aria-label="Activer la notification de la revue du lundi" title="Notification de la revue du lundi" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span>Revue du lundi</span>
+      </button>
+      <button class="bouton-discret" id="btn-sortir" type="button" hidden>Se déconnecter</button>
+    </div>
+  </header>
+
+  <nav class="onglets" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-vue="chat" aria-selected="true">Conversation</button>
+    <button type="button" role="tab" data-vue="portefeuille" aria-selected="false">Portefeuille<span class="compteur" id="compteur-alertes"></span></button>
+    <button type="button" role="tab" data-vue="journal" aria-selected="false">Journal</button>
+  </nav>
+
+  <main class="corps">
+    <section class="panneau" id="vue-chat" aria-label="Conversation avec Alter">
+      <div class="defile" id="defile-chat">
+        <div class="banniere" id="banniere-revue" hidden>
+          <p><strong>La revue de la semaine est prête.</strong> <span id="revue-date"></span></p>
+          <button class="btn btn-principal" type="button" id="btn-lire-revue">Ouvrir la revue</button>
+        </div>
+        <div class="fil" id="fil" aria-live="polite"></div>
+      </div>
+      <form class="saisie" id="form-saisie" autocomplete="off">
+        <div class="saisie-int">
+          <div class="raccourcis" id="raccourcis">
+            <button type="button" data-texte="Fais-moi le point du jour.">Point du jour</button>
+            <button type="button" data-texte="Fais la revue du portefeuille.">Revue</button>
+            <button type="button" data-texte="Quelles sont mes trois priorités cette semaine ?">Trois priorités</button>
+            <button type="button" data-texte="Réunis le Cabinet sur : ">Réunir le Cabinet</button>
+            <button type="button" data-texte="Cassandre, attaque : ">Avocat du diable</button>
+            <button type="button" data-texte="Note une décision : ">Noter une décision</button>
+            <button type="button" data-texte="Faisons la revue des statuts, projet par projet.">Revue des statuts</button>
+          </div>
+          <div class="ligne-saisie">
+            <label class="sr" for="champ">Message à Alter</label>
+            <textarea id="champ" rows="1" placeholder="Écris ou dicte à Alter…" enterkeyhint="send"></textarea>
+            <button class="rond" type="button" id="btn-micro" title="Dicter" aria-label="Dicter">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg>
+            </button>
+            <button class="rond envoyer" type="submit" id="btn-envoyer" title="Envoyer" aria-label="Envoyer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <div class="aide-saisie" id="aide-saisie"></div>
+        </div>
+      </form>
+    </section>
+
+    <aside class="panneau cote" id="cote" hidden>
+      <div class="cote-onglets" role="tablist" aria-label="Dossier">
+        <button type="button" role="tab" data-cote="portefeuille" aria-selected="true">Portefeuille</button>
+        <button type="button" role="tab" data-cote="journal" aria-selected="false">Journal</button>
+      </div>
+      <section class="panneau defile" id="vue-portefeuille" aria-label="Portefeuille par domaine">
+        <div class="synthese" id="synthese"></div>
+        <div class="filtres" id="filtres">
+          <button type="button" data-filtre="tout" aria-pressed="true">Tous les projets</button>
+          <button type="button" data-filtre="surveiller" aria-pressed="false">À surveiller</button>
+        </div>
+        <div id="domaines"></div>
+      </section>
+      <section class="panneau defile" id="vue-journal" aria-label="Journal" hidden>
+        <ol class="journal" id="journal"></ol>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<div class="connexion" id="connexion" hidden>
+  <form class="carte-connexion" id="form-connexion">
+    <div class="monogramme" aria-hidden="true">A</div>
+    <h1 id="connexion-titre">Connexion à Alter</h1>
+    <p id="connexion-texte">Saisis ton adresse : tu recevras un code à six chiffres.</p>
+    <div id="connexion-champs"></div>
+    <div class="message-connexion" id="connexion-message" role="alert"></div>
+    <button class="btn btn-principal" type="submit" id="connexion-bouton">Recevoir le code</button>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

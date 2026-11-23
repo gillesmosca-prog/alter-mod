@@ -1,0 +1,16 @@
+# Réglages locaux de la PWA (adresse du projet Supabase, clé publique VAPID)
+pwa/config.js
+
+# Prompt système complet d'Alter : il reste hors du dépôt (dépôt public)
+supabase/functions/_shared/prompt.ts
+
+# Secrets et fichiers locaux de Supabase
+supabase/.env
+supabase/.env.*
+supabase/.temp/
+supabase/.branches/
+.env
+.env.*
+*.pem
+vapid-*.json
+node_modules/
